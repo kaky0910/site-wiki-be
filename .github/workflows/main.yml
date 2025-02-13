@@ -17,14 +17,13 @@ jobs:
 
       # 2. SSH로 EC2 서버에 연결하고 배포 스크립트 실행
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.6
+        uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 9122
           script: |
-            echo "${{ secrets.EC2_SSH_KEY }}"
             # 작업 디렉토리로 이동
             cd /home/ec2-user/site-wiki-be
 
