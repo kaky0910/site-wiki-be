@@ -9,6 +9,7 @@ import { SiteEntity } from '../entities/site.entity';
 import { IndexService } from './index.service';
 import { SiteCategoryRepository } from '../repository/category.repository';
 import { SiteCategoryResponseDto } from '../dto/category.response.dto';
+import { SiteResponseDto } from '../dto/site.response.dto';
 
 @Injectable()
 export class SiteService {
@@ -30,6 +31,35 @@ export class SiteService {
     // console.log(result)
 
     return result;
+  }
+
+  async getSiteListByKeword(keyword: string) {
+    const elasticResult = await this.elasticsearchService.search({
+      index: 'site_info',
+      body: {
+        query: {
+          bool: {
+            should: [
+              { match: { "name": keyword } },  // 사이트 이름 부분 검색
+              { match: { "description": keyword } },  // 설명에서 검색
+              { match: { "tags.autocomplete": keyword } },  // 자동완성 지원
+              { term: { "tags.keyword": keyword } },  // 태그의 정확한 검색
+              { match_phrase: { "name": { "query": keyword, "slop": 2 } } },  // 사이트 이름 유사 검색
+              { match_phrase: { "description": { "query": keyword, "slop": 2 } } },  // 설명 유사 검색
+              { fuzzy: { "name": { "value": keyword, "fuzziness": "AUTO" } } },  // 오타 검색
+              { fuzzy: { "tags.autocomplete": { "value": keyword, "fuzziness": "AUTO" } } },  // 태그 오타 검색
+              { wildcard: { "url": { "value": `*${keyword}*` } } },  // 이름 일부 검색
+              // { wildcard: { "tags.autocomplete": { "value": `*${keyword}*` } } }  // 태그 일부 검색
+            ],
+            "minimum_should_match": 1
+          }
+        }
+      }
+    });
+
+    const result = await this.siteRepository.findByIds(elasticResult.hits.hits.map((e: any) => e._source.site_id))
+
+    return result.map(e => SiteResponseDto.fromEntity(e));
   }
 
   async insertSite(siteDto: SiteDto) {

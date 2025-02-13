@@ -7,6 +7,7 @@ export class SiteCategoryResponseDto {
     this.category_name = category_name;
     this.sites = [];    
   }
+  category_code: string;
   category_name: string;
 
   order: number;
@@ -19,6 +20,7 @@ export class SiteCategoryResponseDto {
 
   static fromEntity(entity: SiteCategoryEntity) {
     const category = new SiteCategoryResponseDto(entity.category_name);
+    category.category_code = entity.category_code;
     category.order = entity.order
     entity.sites.forEach(site => {
       category.addSite(SiteResponseDto.fromEntity(site));

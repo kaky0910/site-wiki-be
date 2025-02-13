@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
 import { SiteService } from './service/site.service';
 import { SiteDto } from './dto/site.dto';
 import { IndexDto } from './dto/index.dto';
@@ -18,6 +18,12 @@ export class SiteController {
   async getSiteList(@Req() req) {
     // console.log(req);
     return this.siteService.getSiteList();
+  }
+
+  @Get('/search')
+  async getSiteListByKeyword(@Query("keyword") keyword) {
+    console.log(keyword);
+    return this.siteService.getSiteListByKeword(keyword);
   }
 
   @Post()
