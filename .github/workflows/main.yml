@@ -24,6 +24,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 9122
           script: |
+            echo "${{ secrets.EC2_SSH_KEY }}"
             # 작업 디렉토리로 이동
             cd /home/ec2-user/site-wiki-be
 
