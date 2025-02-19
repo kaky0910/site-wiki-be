@@ -48,7 +48,7 @@ export class SiteService {
               { match_phrase: { "description": { "query": keyword, "slop": 2 } } },  // 설명 유사 검색
               { fuzzy: { "name": { "value": keyword, "fuzziness": "AUTO" } } },  // 오타 검색
               { fuzzy: { "tags.autocomplete": { "value": keyword, "fuzziness": "AUTO" } } },  // 태그 오타 검색
-              { wildcard: { "url": { "value": `*${keyword}*` } } },  // 이름 일부 검색
+              // { wildcard: { "url": { "value": `*${keyword}*` } } },  // 이름 일부 검색
               // { wildcard: { "tags.autocomplete": { "value": `*${keyword}*` } } }  // 태그 일부 검색
             ],
             "minimum_should_match": 1
