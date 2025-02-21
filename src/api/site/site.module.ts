@@ -17,6 +17,7 @@ import { RequestService } from './service/request.service';
 import { RequestController } from './request.controller';
 import { SiteCategoryEntity } from './entities/category.entity';
 import { SiteCategoryRepository } from './repository/category.repository';
+import { RedisService } from 'src/common/provider/redis/redis.service';
 
 @Module({
   imports: [ConfigModule,
@@ -49,7 +50,8 @@ import { SiteCategoryRepository } from './repository/category.repository';
     },
     SiteRepository,
     SiteRequestRepository,
-    SiteCategoryRepository
+    SiteCategoryRepository,
+    RedisService
   ],
 })
 export class SiteModule {}

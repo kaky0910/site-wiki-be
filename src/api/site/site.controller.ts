@@ -21,7 +21,7 @@ export class SiteController {
   }
 
   @Get('/search')
-  async getSiteListByKeyword(@Query("keyword") keyword) {
+  async getSiteListByKeyword(@Query("keyword") keyword: string) {
     console.log(keyword);
     return this.siteService.getSiteListByKeword(keyword);
   }
@@ -29,6 +29,11 @@ export class SiteController {
   @Post()
   async insertSite(@Body() site: SiteDto) {
     return this.siteService.insertSite(site);
+  }
+
+  @Post('/click')
+  async addClickCount(@Body() site: SiteDto, @Req() req: Request) {
+    return this.siteService.addClickCount('',site.id);
   }
 
   /**

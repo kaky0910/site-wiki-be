@@ -22,11 +22,11 @@ export class SiteDto {
 
   @IsString()
   @IsOptional()
-  name: string;
+  name?: string;
 
   @IsString()
   @IsOptional()
-  url: string;
+  url?: string;
 
   @IsString()
   @IsOptional()
@@ -38,7 +38,7 @@ export class SiteDto {
   
   @IsString()
   @IsOptional()
-  category: string;    
+  category?: string;    
 
   @IsString()
   @IsOptional()

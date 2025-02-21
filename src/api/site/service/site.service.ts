@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SiteDto } from '../dto/site.dto';
 import { RequestDto } from '../dto/request.dto';
@@ -10,6 +10,8 @@ import { IndexService } from './index.service';
 import { SiteCategoryRepository } from '../repository/category.repository';
 import { SiteCategoryResponseDto } from '../dto/category.response.dto';
 import { SiteResponseDto } from '../dto/site.response.dto';
+import { RedisService } from 'src/common/provider/redis/redis.service';
+import { RedisClientType } from 'redis';
 
 @Injectable()
 export class SiteService {
@@ -18,6 +20,8 @@ export class SiteService {
     private readonly siteRepository: SiteRepository,
     private readonly siteCategoryRespository: SiteCategoryRepository,
     private readonly indexService: IndexService,
+    @Inject('REDIS_CLIENT')
+    private readonly redisClient: RedisClientType
   ) {}
 
   async getSiteList() {
@@ -95,9 +99,22 @@ export class SiteService {
     return result;
   }
 
-  async addClickCount(siteId: string) {
+  async addClickCount(ip: string, siteId: string) {
+    const ipKey = `ip-${ip}-click`;
+    const siteClickStrengthKey = `click-score-${siteId}`;
 
-    
+    console.log(ipKey, siteId);
+    // redis ip-{ipaddres}-click
+    let exists = await this.redisClient.sIsMember(ipKey, siteId);
+    let strength = 1;
+    if (exists) {
+      strength = 0.1;
+    } else {
+      await this.redisClient.sAdd(ipKey, siteId);
+    }
+
+    let score: number = Number.parseInt(await this.redisClient.get(siteClickStrengthKey) || '0');
+    await this.redisClient.set(siteClickStrengthKey, score + strength);
   }
 
   async addLikeCount(requestId: string) {
