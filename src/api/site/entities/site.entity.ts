@@ -53,6 +53,12 @@ export class SiteEntity {
   })
   main_yn?: boolean;
 
+  @Column({
+    comment: '사이트 정렬 순서',
+    default: 1
+  })
+  order: number;
+
   @CreateDateColumn({
     type: 'timestamp with time zone',
     default: () => 'CURRENT_TIMESTAMP(6)',

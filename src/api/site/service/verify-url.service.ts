@@ -5,6 +5,8 @@ import { RedisClientType } from "redis";
 import { SiteRequestEntity } from "../entities/site-request.entity";
 import { RequestService } from "./request.service";
 import { Cron } from "@nestjs/schedule";
+import { SiteService } from "./site.service";
+import { SiteRepository } from "../repository/site.repository";
 
 @Injectable()
 export class VerifyUrlService {
@@ -12,7 +14,8 @@ export class VerifyUrlService {
     @Inject('REDIS_CLIENT')
     private readonly redisClient: RedisClientType,
     private readonly configService: ConfigService,
-    private readonly requestService: RequestService
+    private readonly requestService: RequestService,
+    private readonly siteRepository: SiteRepository,
   ) {}
 
   @Cron('0 0,10,20,30,40,50 * * * *')
@@ -133,5 +136,25 @@ export class VerifyUrlService {
       }
       
     }
+  }
+
+  // check response status 200 
+  async verifyUrlExists() {
+    const siteList = await this.siteRepository.find({
+      where: {
+        use_yn: true
+      }
+    });
+
+    siteList.map(async e => {
+      var response = await axios.get(e.site_url);
+      if (response.status === 200) {
+
+      } else {
+        e.use_yn = false;
+        this.siteRepository.save(e);
+      }
+    })
+
   }
 }

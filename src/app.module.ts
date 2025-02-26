@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch';
 import { ApiModule } from './api/api.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeORMConfig } from './config/typeorm.config';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ElasticsearchModule.register({
-    node: 'http://1.236.152.96:9200',
-  }),
-  ApiModule,
-  TypeOrmModule.forRoot(typeORMConfig),
+  imports: [ConfigModule.forRoot({isGlobal: true, envFilePath: '.env'}),
+    ApiModule,
+    TypeOrmModule.forRoot(typeORMConfig),
 ],
   controllers: [],
   providers: [],

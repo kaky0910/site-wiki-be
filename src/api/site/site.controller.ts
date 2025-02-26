@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Ip, Param, Post, Put, Query, Req } from '@nestjs/common';
 import { SiteService } from './service/site.service';
 import { SiteDto } from './dto/site.dto';
 import { IndexDto } from './dto/index.dto';
@@ -32,8 +32,9 @@ export class SiteController {
   }
 
   @Post('/click')
-  async addClickCount(@Body() site: SiteDto, @Req() req: Request) {
-    return this.siteService.addClickCount('',site.id);
+  async addClickCount(@Body() site: SiteDto, @Ip() ipString: string) {
+    const ip = ipString.split(':')[ipString.split(':').length - 1];
+    return this.siteService.addClickCount(ip,site.id);
   }
 
   /**

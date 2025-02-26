@@ -23,12 +23,18 @@ import { RedisService } from 'src/common/provider/redis/redis.service';
   imports: [ConfigModule,
     TypeOrmModule.forFeature([SiteEntity, SiteReviewEntity, SiteRequestEntity, SiteCategoryEntity]),
     ElasticsearchModule.registerAsync({
-      imports: [ConfigModule.forRoot()],
+      imports: [ConfigModule], // ✅ ConfigModule을 명시적으로 추가
+      useFactory: async (config: ConfigService) => {
+        return {
+          node: config.get<string>('ELASTICSEARCH_NODE'),
+          auth: {
+            username: config.get<string>('ELASTICSEARCH_USERNAME'),
+            password: config.get<string>('ELASTICSEARCH_PASSWORD'),
+          },
+        };
+      },
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => ({
-        node: config.get('ELASTICSEARCH_URL'),
-      }),
-  })],
+    })],
   controllers: [SiteController, RequestController],
   providers: [
     SiteService,
@@ -41,7 +47,8 @@ import { RedisService } from 'src/common/provider/redis/redis.service';
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
         const client = createClient({
-          url: config.get('REDIS_URL'),
+          url: config.get<string>('REDIS_URL'),
+          password: config.get<string>('REDIS_PASSWORD'),
         });
         await client.connect();
         // console.log('redis connected!');

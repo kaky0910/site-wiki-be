@@ -44,22 +44,40 @@ export class SiteService {
         query: {
           bool: {
             should: [
-              { match: { "name": keyword } },  // 사이트 이름 부분 검색
-              { match: { "description": keyword } },  // 설명에서 검색
-              { match: { "tags.autocomplete": keyword } },  // 자동완성 지원
-              { term: { "tags.keyword": keyword } },  // 태그의 정확한 검색
-              { match_phrase: { "name": { "query": keyword, "slop": 2 } } },  // 사이트 이름 유사 검색
-              { match_phrase: { "description": { "query": keyword, "slop": 2 } } },  // 설명 유사 검색
-              { fuzzy: { "name": { "value": keyword, "fuzziness": "AUTO" } } },  // 오타 검색
-              { fuzzy: { "tags.autocomplete": { "value": keyword, "fuzziness": "AUTO" } } },  // 태그 오타 검색
-              // { wildcard: { "url": { "value": `*${keyword}*` } } },  // 이름 일부 검색
-              // { wildcard: { "tags.autocomplete": { "value": `*${keyword}*` } } }  // 태그 일부 검색
+              // 여러 필드를 한 번에 검색: 이름, 설명, 태그(자동완성)
+              {
+                multi_match: {
+                  query: keyword,
+                  fields: [
+                    "name^2", // 이름에 가중치 부여
+                    "description",
+                    "tags.autocomplete"
+                  ],
+                  type: "best_fields",
+                  operator: "and",
+                  fuzziness: "AUTO"
+                }
+              },
+              // 태그의 정확한 검색 (소문자로 변환하여 대소문자 구분 없이)
+              {
+                term: { "tags.keyword": keyword.toLowerCase() }
+              },
+              // 이름 필드의 부분 검색 (소문자로 변환)
+              {
+                wildcard: { 
+                  "name": { 
+                    value: `*${keyword.toLowerCase()}*`,
+                    boost: 0.5  // 가중치 낮게 부여하여 다른 쿼리에 비해 덜 영향 주도록 함
+                  } 
+                }
+              }
             ],
-            "minimum_should_match": 1
+            minimum_should_match: 1
           }
         }
       }
     });
+    
 
     const result = await this.siteRepository.findByIds(elasticResult.hits.hits.map((e: any) => e._source.site_id))
 
@@ -130,31 +148,6 @@ export class SiteService {
 
     console.log(result);
     return result;
-  }
-
-  
-  async temp() {
-
-    const siteList = await this.siteRepository.findBy({
-      use_yn: true
-    });
-
-    for(const site of siteList) {
-      console.log(site);
-      const result = await this.indexService.createSiteDocument({
-        id: site.id,
-        site_id: site.id,
-        name: site.site_name,
-        url: site.site_url,
-        description: site.site_description,
-        image_url: site.site_image_url,
-        tags: site.siteRequest.metadata.tags,
-        category: site.site_category.category_code
-      });
-      
-      console.log(result);
-    }
-    
   }
 
   getDateString(): string {
