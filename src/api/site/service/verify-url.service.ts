@@ -123,7 +123,7 @@ export class VerifyUrlService {
         });
   
         if (response.status === 200) {
-          if (response.data.data.attributes.last_analysis_stats.malicious <= 1 && response.data.data.attributes.last_analysis_stats.suspicious <= 1) {
+          if (response.data.data.attributes.last_analysis_stats.malicious > 1 && response.data.data.attributes.last_analysis_stats.suspicious > 1) {
             await this.requestService.updateRequestStatus(request_id, 'detected', `malware:${response.data.data.attributes.last_analysis_stats.malicious}`);
           } else {
 
