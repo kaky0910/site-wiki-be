@@ -8,6 +8,7 @@ export const redisClient =
     const client = createClient({
       url: 'redis://1.236.152.96:6379',
       password: configService.get<string>('REDIS_PASSWORD'),
+      
     });
     await client.connect();
     // console.log('redis connected!');

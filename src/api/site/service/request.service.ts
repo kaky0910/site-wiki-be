@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { SiteDto } from '../dto/site.dto';
 import { RequestDto } from '../dto/request.dto';
 import axios, { AxiosResponse } from 'axios';
@@ -52,7 +52,10 @@ export class RequestService {
 
 
     if (requestDto.url && requestDto.url.startsWith('http://')) {
-      return 'invalid url';
+      throw new BadRequestException({
+        success: false,
+        message: 'Invalid URL',
+      });
     }
     // requestDto.url 에서 도메인 추출
     const url = new URL(requestDto.url);
@@ -63,7 +66,10 @@ export class RequestService {
     });
 
     if (request && request.use_yn) {
-      return 'request already exists';
+      throw new BadRequestException({
+        success: false,
+        message: 'Request already exists',
+      });
     }
 
     const entity = new SiteRequestEntity();

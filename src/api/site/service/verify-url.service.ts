@@ -123,11 +123,18 @@ export class VerifyUrlService {
         });
   
         if (response.status === 200) {
-          if (response.data.data.attributes.last_analysis_stats.malicious > 0) {
+          if (response.data.data.attributes.last_analysis_stats.malicious <= 1 && response.data.data.attributes.last_analysis_stats.suspicious <= 1) {
             await this.requestService.updateRequestStatus(request_id, 'detected', `malware:${response.data.data.attributes.last_analysis_stats.malicious}`);
           } else {
-            await this.requestService.verifyRequest(request_id, response.data.data.attributes.html_meta);
+
+            const pingResponse = await axios.get(response.data.data.attributes.url);
+            if (pingResponse.status === 200) {
+              await this.requestService.verifyRequest(request_id, response.data.data.attributes.html_meta);
+            } else {
+              await this.requestService.updateRequestStatus(request_id, 'detected', 'url not found');
+            }
           }
+
         }
       } 
       // catch json parsing error

@@ -51,7 +51,7 @@ import { RedisService } from 'src/common/provider/redis/redis.service';
           password: config.get<string>('REDIS_PASSWORD'),
         });
         await client.connect();
-        // console.log('redis connected!');
+        console.log('redis connected!');
         return client;
       }
     },

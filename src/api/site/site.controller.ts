@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Ip, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Ip, Param, Post, Put, Query, Req } from '@nestjs/common';
 import { SiteService } from './service/site.service';
 import { SiteDto } from './dto/site.dto';
 import { IndexDto } from './dto/index.dto';
@@ -22,7 +22,13 @@ export class SiteController {
 
   @Get('/search')
   async getSiteListByKeyword(@Query("keyword") keyword: string) {
-    console.log(keyword);
+    if (!keyword || keyword.length < 2) {
+      throw new BadRequestException({
+        success: false,
+        message: '검색어는 2글자 이상 입력해주세요.',
+      });
+    }
+
     return this.siteService.getSiteListByKeword(keyword);
   }
 
