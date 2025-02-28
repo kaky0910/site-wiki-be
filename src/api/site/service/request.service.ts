@@ -119,6 +119,7 @@ export class RequestService {
     request.metadata = isArray(generatedMetadata) ? generatedMetadata[0] : generatedMetadata;
     request.request_status = 'verified';
     request.request_verify_result = 'verified';
+    request.request_name = generatedMetadata.title;
 
     await this.siteRequestRepository.save(request);
     console.log('request update');

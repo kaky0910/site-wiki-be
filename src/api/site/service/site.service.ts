@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { SiteDto } from '../dto/site.dto';
 import { RequestDto } from '../dto/request.dto';
@@ -23,6 +23,22 @@ export class SiteService {
     @Inject('REDIS_CLIENT')
     private readonly redisClient: RedisClientType
   ) {}
+
+  async getSiteListByUrl(url: string) {
+    const site = await this.siteRepository.findOneBy({
+      site_url: Like(`${url}%`)
+      
+    });
+
+    if (!site) {
+      throw new BadRequestException({
+        success: false,
+        message: 'site already exists',
+      });
+    }
+
+    return site;
+  }
 
   async getSiteList() {
     const categoryList = await this.siteCategoryRespository.findBy({
@@ -121,7 +137,7 @@ export class SiteService {
     const ipKey = `ip-${ip}-click`;
     const siteClickStrengthKey = `click-score-${siteId}`;
 
-    console.log(ipKey, siteId);
+    // console.log(ipKey, siteId);
     // redis ip-{ipaddres}-click
     let exists = await this.redisClient.sIsMember(ipKey, siteId);
     let strength = 1;
