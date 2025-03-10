@@ -53,6 +53,18 @@ export class SiteService {
     return result;
   }
 
+  async getMainSiteList() {
+    const siteList = await this.siteRepository.findBy({
+      use_yn: true,
+      main_yn: true
+    });
+    const result = siteList.map(e => SiteResponseDto.fromEntity(e));
+
+    // console.log(result)
+
+    return result;
+  }
+
   async getSiteListByKeword(keyword: string) {
     const elasticResult = await this.elasticsearchService.search({
       index: 'site_info',
